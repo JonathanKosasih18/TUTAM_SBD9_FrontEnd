@@ -121,13 +121,14 @@ export default function Create() {
                     <div className="w-[80%]">
                         <label htmlFor="due_date" className="block text-jk-text-black text-lg font-semibold mb-1">Due Date</label>
                         <input 
-                            type="date" 
+                            type="datetime-local"
                             id="due_date"
                             name="due_date"
                             value={formData.due_date}
                             onChange={handleChange}
                             className="w-full h-[50px] bg-jk-dark-gray rounded-lg text-jk-text-white text-xl px-4"
                         />
+
                     </div>
                     <div className="flex flex-row items-center justify-center w-full px-4 gap-4 mt-4">
                         <button type="submit" onClick={handleCreate} className="w-[30%] h-[50px] bg-jk-text-white rounded-lg text-jk-black text-xl font-bold hover:bg-opacity-90 transition-all">Create</button>
