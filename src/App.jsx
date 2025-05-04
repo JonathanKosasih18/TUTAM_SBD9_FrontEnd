@@ -10,7 +10,7 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/task" />} />
+          <Route path="/" element={<Navigate to="/user/login" />} />
           <Route path="/task" element={<Tasks />} />
           <Route path="/task/create" element={<Create />} />
           <Route path="/user/login" element={<Login />} />
