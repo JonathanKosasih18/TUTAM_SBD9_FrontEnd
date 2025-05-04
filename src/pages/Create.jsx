@@ -1,13 +1,18 @@
 import NavBar from "../components/NavBar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Create() {
+    const userId = "6be73d2a-214d-4345-bd1d-bb380b9003fa";
+    const Navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         title: "",
         category: "OTHERS",
         status: "PENDING",
-        priority: "MEDIUM",
-        dueDate: ""
+        priority: "LOW",
+        due_date: ""
     });
 
     const handleChange = (e) => {
@@ -18,17 +23,42 @@ export default function Create() {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleCreate = async (e) => {
         e.preventDefault();
-        console.log("Form submitted:", formData);
+    
+        if (!formData.title) {
+            console.error("Title is required.");
+            return;
+        }
+    
+        try {
+            const response = await axios.post("https://tutam-sbd-9-back-end.vercel.app/task/create", {
+                ...formData,
+                user_id: userId
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json"
+                }
+            });
+    
+            if (response.data.success) {
+                console.log("Task created successfully:", response.data);
+                Navigate("/task");
+            } else {
+                console.error("Task creation failed:", response.data.message || response.data);
+            }
+        } catch (error) {
+            console.error("Task creation failed:", error.response?.data || error.message);
+        }
     };
-
+    
     return (
         <div id="main-page" className="flex flex-col min-h-screen w-screen bg-jk-black overflow-x-hidden justify-center items-center">
             <NavBar />
             <div id="create-box" className="flex flex-col h-auto w-[70vw] max-w-[600px] bg-jk-green rounded-lg mt-24 mx-auto py-8">
                 <h1 className="text-4xl font-bold text-jk-text-black text-center">Create Task</h1>
-                <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center w-full gap-4 mt-6">
+                <form className="flex flex-col items-center justify-center w-full gap-4 mt-6">
                     <div className="w-[80%]">
                         <label htmlFor="title" className="block text-jk-text-black text-lg font-semibold mb-1">Title</label>
                         <input 
@@ -100,7 +130,7 @@ export default function Create() {
                         />
                     </div>
                     <div className="flex flex-row items-center justify-center w-full px-4 gap-4 mt-4">
-                        <button type="submit" className="w-[30%] h-[50px] bg-jk-text-white rounded-lg text-jk-black text-xl font-bold hover:bg-opacity-90 transition-all">Create</button>
+                        <button type="submit" onClick={handleCreate} className="w-[30%] h-[50px] bg-jk-text-white rounded-lg text-jk-black text-xl font-bold hover:bg-opacity-90 transition-all">Create</button>
                         <a href="/task" className="w-[30%] h-[50px] bg-jk-text-white rounded-lg text-jk-black text-xl font-bold text-center flex items-center justify-center hover:bg-opacity-90 transition-all">Cancel</a>
                     </div>
                 </form>

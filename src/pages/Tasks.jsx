@@ -1,43 +1,11 @@
+import { useEffect, useState } from "react";
 import NavBar from "../components/NavBar.jsx";
 import editicon from "../assets/edit.svg";
 import deleteicon from "../assets/delete.svg";
+import axios from "axios";
 
 export default function Tasks() {
-    const dummy_data = { 
-        page: 1,
-        results: [
-            {
-                id: "82825f5d-cb66-4b9a-8c3e-48bfde2eff3e",
-                user_id: "cdfd01f1-3358-4410-9e12-8b39cc43a2be",
-                title: "Tutam SBD 9", 
-                status: "DONE",
-                priority: "HIGH",
-                category: "OTHERS",
-                due_date: "",
-                created_at: "2025-05-03 17:22:53.834721",
-            },
-            {
-                id: "a8413779-8ce6-4234-ba2b-62256ae0eb4d",
-                user_id: "cdfd01f1-3358-4410-9e12-8b39cc43a2be",
-                title: "Final Project DMJ", 
-                status: "PENDING",
-                priority: "MEDIUM",
-                category: "OTHERS",
-                due_date: "",
-                created_at: "2025-05-03 17:22:53.834721",
-            },
-            {
-                id: "be5e9aa2-4385-47cd-adfa-357bdb14d0d8",
-                user_id: "cdfd01f1-3358-4410-9e12-8b39cc43a2be",
-                title: "Tugas Matlan", 
-                status: "PENDING",
-                priority: "LOW",
-                category: "OTHERS",
-                due_date: "",
-                created_at: "2025-05-03 17:22:53.834721",
-            }
-        ]
-    }
+    const [tasks, setTasks] = useState([]);
 
     const getPriorityColor = (priority) => {
         switch(priority) {
@@ -59,6 +27,55 @@ export default function Tasks() {
         }
     };
 
+    const fetchTasks = async () => {
+        try {
+            const response = await axios.get("https://tutam-sbd-9-back-end.vercel.app/task", {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            if (response.data.success === true) {
+                setTasks(response.data.payload);
+            }
+        } catch (error) {
+            console.error("Error fetching tasks:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchTasks();
+    }, []);
+
+    const handleDelete = async (taskId) => {
+        try {
+            const check = await axios.get(`https://tutam-sbd-9-back-end.vercel.app/task/${taskId}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+
+            if (!check.data.success) {
+                console.error("Task does not exist or was already deleted.");
+                return;
+            }
+
+            const response = await axios.delete(`https://tutam-sbd-9-back-end.vercel.app/task/${taskId}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+
+            if (response.data.success) {
+                console.log("Task deleted:", taskId);
+                setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+            } else {
+                console.error("Failed to delete task:", response.data.message);
+            }
+        } catch (error) {
+            console.error("Delete error:", error.response?.data || error.message);
+        }
+    };
+
     return (
         <div id="main-page" className="flex flex-col min-h-screen w-screen bg-jk-black overflow-x-hidden">
             <NavBar />
@@ -69,14 +86,14 @@ export default function Tasks() {
                 </div>
 
                 <div id="card-container" className="w-full max-w-6xl mb-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {dummy_data.results.map((task) => (
+                    {tasks.map((task) => (
                         <div key={task.id} className="border-2 border-gray-800 bg-jk-dark-green rounded-lg p-4 relative">
                             <div className={`absolute top-4 left-4 w-3 h-3 rounded-full ${getPriorityColor(task.priority)}`}></div>
                             <div className="absolute top-4 right-4 flex space-x-2">
-                                <button className="hover:opacity-70 transition-opacity">
-                                    <img src={editicon} alt="Edit" className="w-5 h-5" />
-                                </button>
-                                <button className="hover:opacity-70 transition-opacity">
+                                <button
+                                    className="hover:opacity-70 transition-opacity"
+                                    onClick={() => handleDelete(task.id)}
+                                >
                                     <img src={deleteicon} alt="Delete" className="w-5 h-5" />
                                 </button>
                             </div>
@@ -100,5 +117,5 @@ export default function Tasks() {
                 </div>
             </div>
         </div>
-    )
+    );
 }
