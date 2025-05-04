@@ -37,7 +37,7 @@ export default function Tasks() {
         const hours = String(date.getUTCHours()).padStart(2, '0');
         const minutes = String(date.getUTCMinutes()).padStart(2, '0');
     
-        return `${day}/${month}/${year} ${hours}:${minutes} UTC`;
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
     };
 
     const fetchTasks = async () => {
