@@ -27,6 +27,19 @@ export default function Tasks() {
         }
     };
 
+    const formatDateTime = (dateString) => {
+        const date = new Date(dateString);
+        if (isNaN(date)) return "Invalid date";
+    
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const year = date.getUTCFullYear();
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    
+        return `${day}/${month}/${year} ${hours}:${minutes} UTC`;
+    };
+
     const fetchTasks = async () => {
         try {
             const response = await axios.get("https://tutam-sbd-9-back-end.vercel.app/task", {
@@ -110,7 +123,7 @@ export default function Tasks() {
                                 </div>
                             </div>
                             <div className="text-right text-jk-dark-gray text-md font-semibold mt-2">
-                                {task.due_date ? task.due_date : "No due date"}
+                                {task.due_date ? formatDateTime(task.due_date) : "No due date"}
                             </div>
                         </div>
                     ))}
